@@ -1,0 +1,50 @@
+These functions introduce a special matrix object which caches its inverse.
+The create such a special matrix m you execute \code{m <- makeCacheMatrix(x)}
+where x is an ordinary matrix. You can then get the value with \code{cache$getmarix()}
+and change the value with \code{cache$set(newvalue)} where y is an ordinary matrix.
+You can get the inverse with \code{cacheSolve(cache)}.
+makeCacheMatrix <- function(x = numeric()) {
+cache <- NULL
+# Define function to set the value of the numeric. It also clears the old
+# inverse from the cache
+setmatrix <- function(newvalue) {
+x <<- newvalue # Set the value
+cache <<- NULL # Clear the cache
+}
+# Define function to get the value of the numeric
+gematrix <- function() x
+# Define function to set the inverse. This is only used by getinverse() when
+# there is no cached inverse
+cacheInverse <- function(solve) cache <<- solve
+# Define function to get the inverse
+getInverse <- function() solve
+
+# Return a list with the above four functions
+list(setmatrix = setmatrix, getmatrix = getmatrix,
+     cacheInverse = cacheInverse,
+     getInverse = getInverse)
+}
+
+#' Return inverse of matrix x
+#'
+#' This function computes the inverse of the special "matrix" returned by
+#' makeCacheMatrix above. If the inverse has already been calculated
+#' (and the matrix has not changed), then the cachesolve retrieves the
+#' inverse from the cache.
+#'
+#' @param x a special matrix created with makeCacheMatrix
+#'
+#' @return The inverse of the matrix x
+#'
+cacheSolve <- function(y) {
+inverse <- y$getInverse() # This fetches the cached value for the inverse
+if(!is.null(inverse)) { # If the cache was not empty, we can just return it
+message("getting cached data")
+return(inverse)
+}
+# The cache was empty. We need to calculate it, cache it, and then return it.
+data <- y$getmarix() # Get value of matrix
+inverse <- solve(data) # Calculate inverse
+inverse$cacheInverse(inverse) # Cache the result
+inverse # Return the inverse
+}
